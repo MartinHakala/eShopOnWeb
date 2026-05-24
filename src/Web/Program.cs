@@ -31,13 +31,21 @@ else
     _ = builder.Services.AddDbContext<CatalogContext>(c =>
     {
         _ = c.UseSqlServer(builder.Configuration.GetConnectionString("CatalogConnection"),
-            sqlOptions => sqlOptions.EnableRetryOnFailure());
+            sqlOptions =>
+            {
+                _ = sqlOptions.EnableRetryOnFailure();
+                _ = sqlOptions.CommandTimeout(120); // Tohle tě zachrání před pádem při probouzení DB
+            });
     });
 
     _ = builder.Services.AddDbContext<AppIdentityDbContext>(options =>
     {
         _ = options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection"),
-            sqlOptions => sqlOptions.EnableRetryOnFailure());
+            sqlOptions =>
+            {
+                _ = sqlOptions.EnableRetryOnFailure();
+                _ = sqlOptions.CommandTimeout(120);
+            });
     });
 }
 
