@@ -114,6 +114,21 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value;
+    if (path != null && path.StartsWith("/images/products", StringComparison.OrdinalIgnoreCase))
+    {
+        var fileName = System.IO.Path.GetFileName(path);
+
+        var blobUrl = "https://514030hw2storage.blob.core.windows.net/products/" + fileName;
+
+        context.Response.Redirect(blobUrl);
+        return;
+    }
+    await next();
+});
+
 app.Logger.LogInformation("App created...");
 
 app.Logger.LogInformation("Seeding Database...");
