@@ -28,15 +28,15 @@ if (builder.Environment.IsDevelopment() || builder.Environment.EnvironmentName =
 }
 else
 {
-    builder.Services.AddDbContext<CatalogContext>(c =>
+    _ = builder.Services.AddDbContext<CatalogContext>(c =>
     {
-        c.UseSqlServer(builder.Configuration.GetConnectionString("CatalogConnection"),
+        _ = c.UseSqlServer(builder.Configuration.GetConnectionString("CatalogConnection"),
             sqlOptions => sqlOptions.EnableRetryOnFailure());
     });
 
-    builder.Services.AddDbContext<AppIdentityDbContext>(options =>
+    _ = builder.Services.AddDbContext<AppIdentityDbContext>(options =>
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection"),
+        _ = options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection"),
             sqlOptions => sqlOptions.EnableRetryOnFailure());
     });
 }
@@ -79,7 +79,7 @@ builder.Services.AddMvc(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages(options =>
 {
-    options.Conventions.AuthorizePage("/Basket/Checkout");
+    _ = options.Conventions.AuthorizePage("/Basket/Checkout");
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services
@@ -88,7 +88,7 @@ builder.Services
     .AddCheck<HomePageHealthCheck>("home_page_health_check", tags: new[] { "homePageHealthCheck" });
 builder.Services.Configure<ServiceConfig>(config =>
 {
-    config.Services = new List<ServiceDescriptor>(builder.Services);
+    config.Services = [.. builder.Services];
     config.Path = "/allservices";
 });
 
@@ -137,16 +137,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-var catalogBaseUrl = builder.Configuration.GetValue(typeof(string), "CatalogBaseUrl") as string;
-if (!string.IsNullOrEmpty(catalogBaseUrl))
-{
-    app.Use((context, next) =>
-    {
-        context.Request.PathBase = new PathString(catalogBaseUrl);
-        return next();
-    });
-}
-
 app.UseHealthChecks("/health",
     new HealthCheckOptions
     {
@@ -168,16 +158,16 @@ app.UseHealthChecks("/health",
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
 {
     app.Logger.LogInformation("Adding Development middleware...");
-    app.UseDeveloperExceptionPage();
-    app.UseShowAllServicesMiddleware();
-    app.UseMigrationsEndPoint();
+    _ = app.UseDeveloperExceptionPage();
+    _ = app.UseShowAllServicesMiddleware();
+    _ = app.UseMigrationsEndPoint();
     app.UseWebAssemblyDebugging();
 }
 else
 {
     app.Logger.LogInformation("Adding non-Development middleware...");
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    _ = app.UseExceptionHandler("/Error");
+    _ = app.UseHsts();
 }
 
 app.UseHttpsRedirection();
